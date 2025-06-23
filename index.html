@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Face Recognition Web</title>
+  <style>
+    body {
+      background: #222;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      justify-content: center;
+    }
+    #container {
+      background: #333;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+      padding: 32px 32px 24px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #video {
+      border-radius: 8px;
+      border: 4px solid #444;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      background: #111;
+    }
+    #name-label {
+      margin-top: 24px;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #4caf50;
+      min-height: 2.5rem;
+      text-align: center;
+      letter-spacing: 1px;
+      background: #222;
+      border-radius: 6px;
+      padding: 8px 24px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+    }
+    h1 {
+      margin-bottom: 24px;
+      color: #4caf50;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>Face Recognition</h1>
+    <video id="video" width="640" height="480" autoplay muted></video>
+    <div id="name-label">Recognizing...</div>
+  </div>
+  <script>
+    const video = document.getElementById('video');
+    const nameLabel = document.getElementById('name-label');
+
+    // Get webcam stream
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; });
+
+    // Send frame to backend every 2 seconds
+    setInterval(() => {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL('image/jpeg');
+        const base64 = dataURL.split(',')[1];
+
+        fetch('http://localhost:5000/recognize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64 })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.names && data.names.length > 0) {
+            nameLabel.innerText = data.names.join(', ');
+          } else {
+            nameLabel.innerText = "No face detected";
+          }
+        })
+        .catch(() => {
+          nameLabel.innerText = "Recognition error";
+        });
+      }
+    }, 2000);
+  </script>
+</body>
+</html>

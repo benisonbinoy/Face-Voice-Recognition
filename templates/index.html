@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face & Voice Recognition System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 2rem;
+        }
+
+        .video-container, .audio-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #video {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+            background: #f0f0f0;
+            object-fit: cover;
+        }
+
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.recording {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .training-section {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .audio-visualizer {
+            width: 100%;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .bar {
+            width: 4px;
+            background: #667eea;
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8f2ff;
+            border-color: #4a90e2;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .result-container.success {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+        
+        .result-container.uncertain {
+            border-left-color: #ffc107;
+            background: #fffef8;
+        }
+        
+        .result-container.unknown {
+            border-left-color: #dc3545;
+            background: #fff8f8;
+        }
+        
+        .result-container.error {
+            border-left-color: #dc3545;
+            background: #fff8f8;
+        }
+        
+        #systemStatus {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Face & Voice Recognition System</h1>
+            <p>Advanced CNN-based biometric authentication</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Face Recognition Section -->
+            <div class="card">
+                <h2><span class="icon">👤</span>Face Recognition</h2>
+                
+                <div class="video-container">
+                    <video id="video" autoplay muted></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+
+                <div class="controls">
+                    <button id="startCamera" class="btn">Start Camera</button>
+                    <button id="capturePhoto" class="btn" disabled>Capture Photo</button>
+                    <button id="stopCamera" class="btn" disabled>Stop Camera</button>
+                </div>                <div class="upload-area" id="faceUploadArea">
+                    <p>📁 Or drop an image here / click to upload</p>
+                    <input type="file" id="faceFileInput" class="file-input" accept="image/*">
+                </div>
+
+                <div id="faceStatus" class="status info" style="display: none;">
+                    Processing...
+                </div>
+
+                <div id="faceResult" class="result-container" style="display: none;">
+                    <div class="result">Recognition Result: <span id="faceResultText"></span></div>
+                </div>
+            </div>
+
+            <!-- Voice Recognition Section -->
+            <div class="card">
+                <h2><span class="icon">🎤</span>Voice Recognition</h2>
+                
+                <div class="audio-container">
+                    <div class="audio-visualizer" id="audioVisualizer">
+                        <!-- Audio bars will be generated by JavaScript -->
+                    </div>
+                    
+                    <div class="audio-controls">
+                        <button id="startRecording" class="btn">🎙️ Start Recording</button>
+                        <button id="stopRecording" class="btn" disabled>⏹️ Stop Recording</button>
+                        <audio id="audioPlayback" controls style="display: none; margin-top: 10px;"></audio>
+                    </div>
+                </div>                <div class="upload-area" id="voiceUploadArea">
+                    <p>📁 Or drop an audio file here / click to upload</p>
+                    <input type="file" id="voiceFileInput" class="file-input" accept="audio/*">
+                </div>
+
+                <div id="voiceStatus" class="status info" style="display: none;">
+                    Processing...
+                </div>
+
+                <div id="voiceResult" class="result-container" style="display: none;">
+                    <div class="result">Recognition Result: <span id="voiceResultText"></span></div>
+                </div>
+            </div>            <!-- Training Section -->
+            <div class="card training-section">
+                <h2><span class="icon">🧠</span>Model Training</h2>
+                <p>Train the CNN models with your face and voice data</p>
+                
+                <div id="trainingStatus" class="status info">
+                    Ready to train models
+                </div>
+                
+                <div class="progress-bar" id="progressBarContainer" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <button id="trainModels" class="btn">🚀 Train Models</button>
+                <button id="retrainVoice" class="btn">🎤 Retrain Voice Only</button>
+                  <div style="margin-top: 20px; font-size: 0.9rem; color: #666;">
+                    <p><strong>System Status:</strong></p>
+                    <div id="systemStatus">
+                        <p>• Loading system status...</p>
+                    </div>
+                    <p style="margin-top: 10px;"><em>To add voice samples: Create folders in <code>voice_data/PersonName/</code> with .wav files</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let stream;
+        let isRecording = false;
+        let animationId;
+
+        // DOM elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const startCameraBtn = document.getElementById('startCamera');
+        const capturePhotoBtn = document.getElementById('capturePhoto');
+        const stopCameraBtn = document.getElementById('stopCamera');
+        const startRecordingBtn = document.getElementById('startRecording');
+        const stopRecordingBtn = document.getElementById('stopRecording');
+        const trainModelsBtn = document.getElementById('trainModels');
+        const audioPlayback = document.getElementById('audioPlayback');
+        const audioVisualizer = document.getElementById('audioVisualizer');
+
+        // Initialize audio visualizer
+        function initAudioVisualizer() {
+            for (let i = 0; i < 20; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = '10px';
+                audioVisualizer.appendChild(bar);
+            }
+        }
+
+        // Animate audio visualizer
+        function animateVisualizer() {
+            const bars = audioVisualizer.children;
+            for (let bar of bars) {
+                const height = Math.random() * 40 + 10;
+                bar.style.height = height + 'px';
+            }
+            
+            if (isRecording) {
+                animationId = requestAnimationFrame(animateVisualizer);
+            }
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                startCameraBtn.disabled = true;
+                capturePhotoBtn.disabled = false;
+                stopCameraBtn.disabled = false;
+                showStatus('Camera started successfully', 'success');
+            } catch (error) {
+                showStatus('Error accessing camera: ' + error.message, 'error');
+            }
+        }        function capturePhoto() {
+            console.log('Capture photo button clicked');
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            const imageData = canvas.toDataURL('image/jpeg');
+            console.log('Image captured, size:', imageData.length);
+            
+            recognizeFace(imageData);
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                startCameraBtn.disabled = false;
+                capturePhotoBtn.disabled = true;
+                stopCameraBtn.disabled = true;
+                showStatus('Camera stopped', 'info');
+            }
+        }
+
+        // Audio recording functions
+        async function startRecording() {
+            try {
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(audioStream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    audioPlayback.src = audioUrl;
+                    audioPlayback.style.display = 'block';
+                    recognizeVoice(audioBlob);
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                
+                startRecordingBtn.disabled = true;
+                startRecordingBtn.classList.add('recording');
+                stopRecordingBtn.disabled = false;
+                
+                animateVisualizer();
+                showStatus('Recording audio...', 'info');
+            } catch (error) {
+                showStatus('Error accessing microphone: ' + error.message, 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                
+                startRecordingBtn.disabled = false;
+                startRecordingBtn.classList.remove('recording');
+                stopRecordingBtn.disabled = true;
+                
+                cancelAnimationFrame(animationId);
+                showStatus('Recording stopped', 'success');
+            }
+        }        // Recognition functions
+        async function recognizeFace(imageData) {
+            try {
+                console.log('Starting face recognition...');
+                showFaceStatus('Analyzing face...', 'info');
+                
+                const response = await fetch('/recognize_face_realtime', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Recognition result:', result);
+                
+                if (result.status === 'success') {
+                    document.getElementById('faceResultText').textContent = result.result.join(', ');
+                    document.getElementById('faceResult').style.display = 'block';
+                    showFaceStatus('Face recognition completed', 'success');
+                } else {
+                    showFaceStatus('Face recognition failed: ' + result.message, 'error');
+                }            } catch (error) {
+                console.error('Face recognition error:', error);
+                showFaceStatus('Error during face recognition: ' + error.message, 'error');
+            }
+        }
+        
+        // Enhanced voice recognition function
+        async function recognizeVoice(audioBlob) {
+            try {
+                showVoiceStatus('Analyzing voice...', 'info');
+                
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+                
+                const response = await fetch('/recognize_voice', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    displayVoiceResult(result.result);
+                } else {
+                    showVoiceStatus('Voice recognition failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showVoiceStatus('Error during voice recognition: ' + error.message, 'error');
+            }
+        }
+        
+        // Display enhanced voice recognition result
+        function displayVoiceResult(result) {
+            const voiceResultEl = document.getElementById('voiceResult');
+            const voiceResultTextEl = document.getElementById('voiceResultText');
+            
+            if (result.message) {
+                // New enhanced format
+                voiceResultTextEl.innerHTML = result.message;
+                voiceResultEl.className = 'result-container ' + (result.status || 'info');
+            } else if (typeof result === 'string') {
+                // Backward compatibility
+                voiceResultTextEl.textContent = result;
+                voiceResultEl.className = 'result-container';
+            }
+            
+            voiceResultEl.style.display = 'block';
+            document.getElementById('voiceStatus').style.display = 'none';
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                voiceResultEl.style.display = 'none';
+            }, 10000);
+        }
+        
+        // Load and display system status
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/get_system_status');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    displaySystemStatus(result.data);
+                }
+            } catch (error) {
+                console.log('Could not load system status:', error);
+            }
+        }
+        
+        // Display system status
+        function displaySystemStatus(status) {
+            const systemStatusEl = document.getElementById('systemStatus');
+            
+            let html = '';
+            
+            // Face recognition status
+            html += `<p>• Face Recognition: ${status.face_recognition.people_count} people (${status.face_recognition.people_names.join(', ')}) - ${status.face_recognition.status}</p>`;
+            
+            // Voice recognition status
+            const voiceStatus = status.voice_recognition;
+            let voiceStatusText = '';
+            if (voiceStatus.people_count === 0) {
+                voiceStatusText = 'No voice data - needs training';
+            } else if (voiceStatus.people_count === 1) {
+                voiceStatusText = `1 person (${voiceStatus.people_names[0]}) - Limited recognition`;
+            } else {
+                voiceStatusText = `${voiceStatus.people_count} people (${voiceStatus.people_names.join(', ')}) - Full recognition`;
+            }
+            
+            html += `<p>• Voice Recognition: ${voiceStatusText}</p>`;
+            
+            systemStatusEl.innerHTML = html;
+        }
+
+        function showVoiceStatus(message, type) {
+            console.log(`VOICE ${type.toUpperCase()}: ${message}`);
+            const statusEl = document.getElementById('voiceStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            
+            // Hide status after 5 seconds for success/error messages
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Training function
+        // Training functions
+        async function retrainVoiceOnly() {
+            try {
+                const retrainBtn = document.getElementById('retrainVoice');
+                retrainBtn.disabled = true;
+                showTrainingStatus('Retraining voice model...', 'info');
+                
+                const response = await fetch('/retrain_voice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showTrainingStatus('Voice model retrained successfully!', 'success');
+                } else if (result.status === 'info') {
+                    showTrainingStatus(result.message, 'info');
+                } else {
+                    showTrainingStatus('Voice retraining failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showTrainingStatus('Error during voice retraining: ' + error.message, 'error');
+            } finally {
+                document.getElementById('retrainVoice').disabled = false;
+            }
+        }
+
+        async function trainModels() {
+            try {
+                trainModelsBtn.disabled = true;
+                showTrainingStatus('Training models...', 'info');
+                showProgress(0);
+                
+                // Simulate progress
+                const progressInterval = setInterval(() => {
+                    const current = parseInt(document.getElementById('progressFill').style.width) || 0;
+                    if (current < 90) {
+                        showProgress(current + 10);
+                    }
+                }, 1000);
+                
+                const response = await fetch('/train', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                clearInterval(progressInterval);
+                
+                if (result.status === 'success') {
+                    showProgress(100);
+                    showTrainingStatus('Models trained successfully!', 'success');
+                } else {
+                    showTrainingStatus('Training failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showTrainingStatus('Error during training: ' + error.message, 'error');
+            } finally {
+                trainModelsBtn.disabled = false;
+                setTimeout(() => {
+                    document.getElementById('progressBarContainer').style.display = 'none';
+                }, 3000);
+            }
+        }        // Utility functions
+        function showStatus(message, type) {
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }        function showFaceStatus(message, type) {
+            console.log(`FACE ${type.toUpperCase()}: ${message}`);
+            const statusEl = document.getElementById('faceStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            
+            // Hide status after 5 seconds for success/error messages
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showTrainingStatus(message, type) {
+            const statusEl = document.getElementById('trainingStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+
+        function showProgress(percent) {
+            document.getElementById('progressBarContainer').style.display = 'block';
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        // File upload handlers
+        function setupFileUploads() {
+            // Face image upload
+            const faceUploadArea = document.getElementById('faceUploadArea');
+            const faceFileInput = document.getElementById('faceFileInput');
+            
+            faceUploadArea.addEventListener('click', () => faceFileInput.click());
+            
+            faceUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                faceUploadArea.classList.add('dragover');
+            });
+            
+            faceUploadArea.addEventListener('dragleave', () => {
+                faceUploadArea.classList.remove('dragover');
+            });
+            
+            faceUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                faceUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    handleFaceUpload(files[0]);
+                }
+            });
+            
+            faceFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFaceUpload(e.target.files[0]);
+                }
+            });
+            
+            // Voice audio upload
+            const voiceUploadArea = document.getElementById('voiceUploadArea');
+            const voiceFileInput = document.getElementById('voiceFileInput');
+            
+            voiceUploadArea.addEventListener('click', () => voiceFileInput.click());
+            
+            voiceUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                voiceUploadArea.classList.add('dragover');
+            });
+            
+            voiceUploadArea.addEventListener('dragleave', () => {
+                voiceUploadArea.classList.remove('dragover');
+            });
+            
+            voiceUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                voiceUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('audio/')) {
+                    handleVoiceUpload(files[0]);
+                }
+            });
+            
+            voiceFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleVoiceUpload(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleFaceUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                recognizeFace(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleVoiceUpload(file) {
+            recognizeVoice(file);
+        }        // Event listeners
+        startCameraBtn.addEventListener('click', startCamera);
+        capturePhotoBtn.addEventListener('click', capturePhoto);
+        stopCameraBtn.addEventListener('click', stopCamera);
+        startRecordingBtn.addEventListener('click', startRecording);
+        stopRecordingBtn.addEventListener('click', stopRecording);
+        trainModelsBtn.addEventListener('click', trainModels);
+        document.getElementById('retrainVoice').addEventListener('click', retrainVoiceOnly);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initAudioVisualizer();
+            setupFileUploads();
+            loadSystemStatus();
+        });
+    </script>
+</body>
+</html>
