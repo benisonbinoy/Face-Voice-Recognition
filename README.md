@@ -1,23 +1,29 @@
 # Face & Voice Recognition System 🎭
 
-A modern web-based face and voice recognition system using CNN (Convolutional Neural Networks) with a beautiful, responsive UI.
+A modern web-based face and voice recognition system using advanced CNN (Convolutional Neural Networks) with enhanced feature extraction and multiple model architectures for improved accuracy.
 
 ## Features ✨
 
-- **Face Recognition**: CNN-based facial recognition using computer vision
-- **Voice Recognition**: MFCC feature extraction with CNN for voice identification
+- **Advanced Face Recognition**: CNN-based facial recognition using computer vision
+- **Enhanced Voice Recognition**: Multi-feature extraction (MFCC, Chroma, Spectral Contrast) with CNN
+- **Multiple Model Architectures**: Standard, focused, balanced, and ensemble models
+- **Dual-Model System**: Intelligent model switching and consensus for better accuracy
 - **Real-time Processing**: Live camera feed and microphone input
 - **Modern Web UI**: Responsive design with drag-and-drop file uploads
-- **Model Training**: Train custom models with your own data
+- **Robust Feature Extraction**: Enhanced audio processing with fallback support
+- **Model Training**: Train multiple custom models with your own data
 - **Multi-format Support**: Images (JPG, PNG) and audio files (WAV, MP3)
+- **Performance Analytics**: Detailed testing and validation tools
 
 ## Technologies Used 🔧
 
 - **Backend**: Python Flask, TensorFlow/Keras, OpenCV
 - **Frontend**: HTML5, CSS3, JavaScript
-- **Machine Learning**: CNN models for both face and voice recognition
-- **Audio Processing**: Librosa for feature extraction
+- **Machine Learning**: Advanced CNN models with multiple architectures
+- **Audio Processing**: Librosa with enhanced feature extraction (MFCC, Chroma, Spectral Contrast)
 - **Computer Vision**: OpenCV for face detection and processing
+- **Model Optimization**: Ensemble methods, Random Forest, SVM
+- **Configuration Management**: Centralized config system
 
 ## Installation 🚀
 
@@ -97,11 +103,50 @@ python app.py
 Conv2D(32) → MaxPool → Conv2D(64) → MaxPool → Conv2D(128) → MaxPool → Dense(128) → Output
 ```
 
-### Voice Recognition CNN
+### Voice Recognition System
+The system includes multiple model architectures:
+
+#### Enhanced CNN Models
 ```
-Input: MFCC features (13×130)
+Input: Multi-feature audio (32×130×1 or 32×36×1)
+- MFCC features (13): Spectral characteristics
+- Chroma features (12): Pitch class profiles  
+- Spectral Contrast (7): Timbral texture
 Conv2D(32) → MaxPool → Conv2D(64) → MaxPool → Conv2D(128) → MaxPool → Dense(128) → Output
 ```
+
+#### Specialized Models
+- **Standard Model**: General-purpose voice recognition
+- **Focused Models**: Person-specific optimization (e.g., Athul-focused)
+- **Balanced Model**: Multi-user optimization
+- **Ensemble Model**: Random Forest + SVM with statistical features
+
+#### Dual-Model System
+- Intelligent model switching based on confidence scores
+- Consensus prediction from multiple models
+- Enhanced accuracy through model combination
+
+## Recent Improvements 🚀
+
+### Voice Recognition Enhancements
+- **Multi-Feature Extraction**: Combined MFCC, Chroma, and Spectral Contrast features (32 total vs. 13 previously)
+- **Advanced Model Architectures**: Multiple specialized models for different scenarios
+- **Dual-Model System**: Intelligent switching between models based on confidence
+- **Ensemble Methods**: Random Forest and SVM models for statistical analysis
+- **Enhanced Preprocessing**: Improved normalization and feature-type specific processing
+- **Robust Error Handling**: Comprehensive fallbacks for different librosa versions
+
+### System Optimizations
+- **Configuration Management**: Centralized config system for easy parameter tuning
+- **Performance Analytics**: Detailed testing and validation tools
+- **Memory Optimization**: Efficient model loading and prediction processes
+- **JSON Serialization**: Fixed numpy type conversion issues
+- **Sample Rate Consistency**: Standardized audio processing across all models
+
+### Model Performance
+- **Focused Models**: Up to 100% accuracy for specific individuals
+- **Balanced Models**: Optimized for multi-user scenarios (60% overall accuracy)
+- **Consensus Prediction**: Combines multiple model outputs for better reliability
 
 ## API Endpoints 🔌
 
@@ -121,11 +166,19 @@ Conv2D(32) → MaxPool → Conv2D(64) → MaxPool → Conv2D(128) → MaxPool �
    - Record in quiet environments
    - Use consistent microphone/recording setup
    - Include various speaking styles
+   - Ensure 2-5 second audio samples for best results
 
 3. **Model Training**:
    - More data generally improves accuracy
    - Balance the number of samples per person
+   - Use multiple model types for different scenarios
    - Retrain models when adding new people
+   - Consider person-specific focused models for difficult cases
+
+4. **System Optimization**:
+   - The dual-model system automatically selects the best approach
+   - Ensemble methods provide fallback for edge cases
+   - Enhanced feature extraction improves discrimination
 
 ## Troubleshooting 🔧
 
@@ -153,18 +206,32 @@ Conv2D(32) → MaxPool → Conv2D(64) → MaxPool → Conv2D(128) → MaxPool �
 
 ```
 Face Recognition/
-├── app.py                 # Main Flask application
-├── setup.py              # Setup script
-├── requirements.txt      # Dependencies
-├── README.md            # This file
+├── app.py                          # Main Flask application with dual-model system
+├── setup.py                       # Setup script
+├── config.py                      # Configuration management
+├── requirements.txt               # Dependencies
+├── README.md                      # This file
+├── .gitignore                     # Git ignore rules
 ├── templates/
-│   └── index.html       # Web interface
-├── face_data/           # Face training images
-├── voice_data/          # Voice training samples
-├── face_model.h5        # Trained face model (generated)
-├── voice_model.h5       # Trained voice model (generated)
-├── face_encoder.pkl     # Face label encoder (generated)
-└── voice_encoder.pkl    # Voice label encoder (generated)
+│   └── index.html                 # Web interface
+├── face_data/                     # Face training images
+├── voice_data/                    # Voice training samples
+├── face_model.h5                  # Trained face model
+├── face_encoder.pkl               # Face label encoder
+├── voice_model.h5                 # Standard voice model
+├── voice_encoder.pkl              # Voice label encoder
+├── balanced_voice_model.h5        # Balanced voice model
+├── balanced_voice_encoder.pkl     # Balanced model encoder
+├── focused_voice_model.h5         # Person-focused models
+├── voice_ensemble_models.pkl      # Ensemble models
+├── voice_features.pkl             # Processed voice features
+├── test_system.py                 # System validation
+├── validate_system.py             # Model testing
+├── analyze_all_voices.py          # Voice analysis tools
+├── compare_all_models.py          # Model comparison
+├── FINAL_PROJECT_STATUS.md        # Project status report
+├── IMPROVEMENTS_SUMMARY.md        # Improvement documentation
+└── USAGE_SUMMARY.md              # Usage guidelines
 ```
 
 ## Security Notes 🔒
