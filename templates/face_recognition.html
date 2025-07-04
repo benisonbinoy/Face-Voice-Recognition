@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition - Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .page-title h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .verification-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            animation: slideInUp 1s ease-out;
+        }
+
+        .camera-section {
+            margin-bottom: 40px;
+        }
+
+        .camera-placeholder {
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+            display: none;
+        }
+
+        .camera-icon {
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        .camera-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .status-error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .status-info {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        .face-detection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .face-box {
+            position: absolute;
+            border: 3px solid #4ecdc4;
+            border-radius: 10px;
+            background: rgba(78, 205, 196, 0.1);
+            animation: faceDetected 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes faceDetected {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .verification-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .camera-placeholder {
+                width: 100%;
+                max-width: 350px;
+                height: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.location.href='/'">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </button>
+
+        <div class="page-title">
+            <h1>Face Recognition</h1>
+            <p>Position your face in the camera frame and click verify</p>
+        </div>
+
+        <div class="verification-container">
+            <div class="camera-section">
+                <div class="camera-placeholder" id="cameraContainer">
+                    <video id="video" autoplay playsinline></video>
+                    <div id="cameraIcon" class="camera-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="face-detection-overlay" id="faceOverlay"></div>
+                </div>
+                <div class="camera-text" id="cameraText">Click "Turn On Camera" to start</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="cameraBtn" onclick="toggleCamera()">
+                    <i class="fas fa-video"></i> Turn On Camera
+                </button>
+                <button class="btn btn-secondary" id="verifyBtn" onclick="verifyFace()" disabled>
+                    <i class="fas fa-check"></i> Verify
+                </button>
+            </div>
+
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let video = document.getElementById('video');
+        let stream = null;
+        let isCameraOn = false;
+        let faceDetected = false;
+        let isProcessing = false;
+
+        async function toggleCamera() {
+            const cameraBtn = document.getElementById('cameraBtn');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const cameraIcon = document.getElementById('cameraIcon');
+            const cameraText = document.getElementById('cameraText');
+
+            if (!isCameraOn) {
+                try {
+                    showStatus('Accessing camera...', 'info');
+                    
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 640 }, 
+                            height: { ideal: 480 },
+                            facingMode: 'user'
+                        } 
+                    });
+                    
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    cameraIcon.style.display = 'none';
+                    
+                    isCameraOn = true;
+                    cameraBtn.innerHTML = '<i class="fas fa-video-slash"></i> Turn Off Camera';
+                    cameraText.textContent = 'Camera is active - Position your face in the frame';
+                    
+                    showStatus('Camera activated successfully!', 'success');
+                    
+                    // Start face detection
+                    startFaceDetection();
+                    
+                } catch (error) {
+                    console.error('Error accessing camera:', error);
+                    showStatus('Error accessing camera. Please check permissions.', 'error');
+                }
+            } else {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                video.style.display = 'none';
+                cameraIcon.style.display = 'block';
+                
+                isCameraOn = false;
+                faceDetected = false;
+                cameraBtn.innerHTML = '<i class="fas fa-video"></i> Turn On Camera';
+                cameraText.textContent = 'Click "Turn On Camera" to start';
+                verifyBtn.disabled = true;
+                
+                hideStatus();
+                clearFaceDetection();
+            }
+        }
+
+        function startFaceDetection() {
+            // Simulate face detection (in real implementation, you'd use face detection library)
+            setTimeout(() => {
+                if (isCameraOn) {
+                    faceDetected = true;
+                    document.getElementById('verifyBtn').disabled = false;
+                    showFaceDetection();
+                    showStatus('Face detected! You can now verify your identity.', 'success');
+                }
+            }, 2000);
+        }
+
+        function showFaceDetection() {
+            const overlay = document.getElementById('faceOverlay');
+            const faceBox = document.createElement('div');
+            faceBox.className = 'face-box';
+            faceBox.style.left = '20%';
+            faceBox.style.top = '15%';
+            faceBox.style.width = '60%';
+            faceBox.style.height = '70%';
+            overlay.appendChild(faceBox);
+        }
+
+        function clearFaceDetection() {
+            const overlay = document.getElementById('faceOverlay');
+            overlay.innerHTML = '';
+        }
+
+        async function verifyFace() {
+            if (!faceDetected || isProcessing) return;
+            
+            isProcessing = true;
+            const verifyBtn = document.getElementById('verifyBtn');
+            const originalContent = verifyBtn.innerHTML;
+            
+            verifyBtn.innerHTML = '<span class="loading-spinner"></span>Verifying...';
+            verifyBtn.disabled = true;
+            
+            showStatus('Analyzing face features...', 'info');
+
+            try {
+                // Capture current frame
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                const imageData = canvas.toDataURL('image/jpeg');
+
+                // Send to backend for recognition
+                const response = await fetch('/recognize_face', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatus('Face verification successful! Redirecting to voice recognition...', 'success');
+                    
+                    // Store recognized person data
+                    sessionStorage.setItem('recognizedPerson', JSON.stringify({
+                        name: result.person,
+                        confidence: result.confidence,
+                        image: imageData
+                    }));
+                    
+                    // Smooth transition to voice recognition
+                    setTimeout(() => {
+                        window.location.href = '/voice-recognition';
+                    }, 2000);
+                } else {
+                    showStatus(result.message || 'Face not recognized. Please try again.', 'error');
+                    verifyBtn.innerHTML = originalContent;
+                    verifyBtn.disabled = false;
+                    isProcessing = false;
+                }
+            } catch (error) {
+                console.error('Error during face verification:', error);
+                showStatus('Error during verification. Please try again.', 'error');
+                verifyBtn.innerHTML = originalContent;
+                verifyBtn.disabled = false;
+                isProcessing = false;
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.style.display = 'none';
+        }
+
+        // Clean up when leaving the page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

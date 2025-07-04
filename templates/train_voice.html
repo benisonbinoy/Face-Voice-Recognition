@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Voice Model</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .page-title h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .training-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            animation: slideInUp 1s ease-out;
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .info-section h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-section p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .status-card h4 {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .status-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+
+        .status-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .voice-samples-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .person-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .person-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .person-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .person-stats {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .btn-retrain {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.3);
+        }
+
+        .btn-retrain:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(155, 89, 182, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .progress-section {
+            margin: 30px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .status-error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .status-info {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .status-warning {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        .warning-box {
+            background: rgba(241, 196, 15, 0.2);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #f1c40f;
+        }
+
+        .warning-box h4 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .training-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.location.href='/'">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </button>
+
+        <div class="page-title">
+            <h1>Train Voice Model</h1>
+            <p>Train the AI to recognize voices from your audio database</p>
+        </div>
+
+        <div class="training-container">
+            <div class="info-section">
+                <h3>
+                    <i class="fas fa-microphone"></i>
+                    Training Information
+                </h3>
+                <p>
+                    The voice recognition model will be trained using audio files from the voice_data folder. 
+                    Make sure you have multiple voice samples (5-10) for each person in separate folders.
+                </p>
+                <p>
+                    Training typically takes 3-8 minutes depending on the number of people and audio samples.
+                </p>
+            </div>
+
+            <div class="status-grid" id="statusGrid">
+                <div class="status-card">
+                    <h4>People in Database</h4>
+                    <div class="status-value" id="peopleCount">0</div>
+                    <div class="status-label">individuals</div>
+                </div>
+                <div class="status-card">
+                    <h4>Voice Samples</h4>
+                    <div class="status-value" id="sampleCount">0</div>
+                    <div class="status-label">audio files</div>
+                </div>
+                <div class="status-card">
+                    <h4>Model Status</h4>
+                    <div class="status-value" id="modelStatus">✗</div>
+                    <div class="status-label" id="modelStatusLabel">not trained</div>
+                </div>
+            </div>
+
+            <div class="voice-samples-list" id="voiceSamplesList" style="display: none;">
+                <h4 style="color: white; margin-bottom: 15px;">Voice Data Overview:</h4>
+                <!-- Voice samples will be populated here -->
+            </div>
+
+            <div class="warning-box" id="warningBox" style="display: none;">
+                <h4>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Training Requirements
+                </h4>
+                <p id="warningMessage">Voice recognition requires at least 2 people with voice samples for effective training.</p>
+            </div>
+
+            <div class="progress-section" id="progressSection">
+                <div class="progress-text" id="progressText">Training in progress...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="loadSystemStatus()">
+                    <i class="fas fa-sync"></i> Check Status
+                </button>
+                <button class="btn btn-primary" id="trainBtn" onclick="startTraining()">
+                    <i class="fas fa-play"></i> Start Training
+                </button>
+                <button class="btn btn-retrain" id="retrainBtn" onclick="retrainVoice()" style="display: none;">
+                    <i class="fas fa-redo"></i> Retrain Model
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='/settings'">
+                    <i class="fas fa-cog"></i> Advanced Settings
+                </button>
+            </div>
+
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let isTraining = false;
+        let voiceData = {};
+
+        window.addEventListener('load', () => {
+            loadSystemStatus();
+            loadVoiceInfo();
+        });
+
+        async function loadSystemStatus() {
+            try {
+                showStatus('Loading system status...', 'info');
+                
+                const response = await fetch('/get_system_status');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const data = result.data;
+                    updateStatusDisplay(data);
+                    hideStatus();
+                } else {
+                    showStatus('Failed to load system status', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading status:', error);
+                showStatus('Error loading system status', 'error');
+            }
+        }
+
+        async function loadVoiceInfo() {
+            try {
+                const response = await fetch('/get_voice_info');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    voiceData = result.data;
+                    updateVoiceDisplay();
+                }
+            } catch (error) {
+                console.error('Error loading voice info:', error);
+            }
+        }
+
+        function updateStatusDisplay(data) {
+            const voiceData = data.voice_recognition;
+            
+            document.getElementById('peopleCount').textContent = voiceData.people_count;
+            
+            // Calculate total samples
+            let totalSamples = 0;
+            Object.values(this.voiceData || {}).forEach(person => {
+                totalSamples += person.sample_count;
+            });
+            document.getElementById('sampleCount').textContent = totalSamples;
+            
+            const modelStatus = document.getElementById('modelStatus');
+            const modelStatusLabel = document.getElementById('modelStatusLabel');
+            const retrainBtn = document.getElementById('retrainBtn');
+            const warningBox = document.getElementById('warningBox');
+            const warningMessage = document.getElementById('warningMessage');
+            
+            if (voiceData.enabled && voiceData.status === 'full_recognition') {
+                modelStatus.textContent = '✓';
+                modelStatus.style.color = '#2ecc71';
+                modelStatusLabel.textContent = 'fully trained';
+                modelStatusLabel.style.color = '#2ecc71';
+                retrainBtn.style.display = 'inline-flex';
+                warningBox.style.display = 'none';
+            } else if (voiceData.enabled && voiceData.status === 'limited_recognition') {
+                modelStatus.textContent = '⚠';
+                modelStatus.style.color = '#f1c40f';
+                modelStatusLabel.textContent = 'limited';
+                modelStatusLabel.style.color = '#f1c40f';
+                retrainBtn.style.display = 'inline-flex';
+                warningBox.style.display = 'block';
+                warningMessage.textContent = 'Voice recognition is working but limited to one person. Add more people for full recognition.';
+            } else {
+                modelStatus.textContent = '✗';
+                modelStatus.style.color = '#e74c3c';
+                modelStatusLabel.textContent = 'not trained';
+                modelStatusLabel.style.color = '#e74c3c';
+                retrainBtn.style.display = 'none';
+                
+                if (voiceData.people_count === 0) {
+                    warningBox.style.display = 'block';
+                    warningMessage.textContent = 'No voice data found. Add voice samples to the voice_data folder to begin training.';
+                } else if (voiceData.people_count === 1) {
+                    warningBox.style.display = 'block';
+                    warningMessage.textContent = 'Only one person found. Voice recognition needs at least 2 people for effective training.';
+                }
+            }
+        }
+
+        function updateVoiceDisplay() {
+            if (Object.keys(voiceData).length > 0) {
+                const voiceList = document.getElementById('voiceSamplesList');
+                voiceList.style.display = 'block';
+                voiceList.innerHTML = '<h4 style="color: white; margin-bottom: 15px;">Voice Data Overview:</h4>';
+                
+                Object.entries(voiceData).forEach(([person, data]) => {
+                    const item = document.createElement('div');
+                    item.className = 'person-item';
+                    item.innerHTML = `
+                        <div class="person-info">
+                            <i class="fas fa-user"></i>
+                            <span>${person}</span>
+                        </div>
+                        <div class="person-stats">
+                            ${data.sample_count} voice samples
+                        </div>
+                    `;
+                    voiceList.appendChild(item);
+                });
+            }
+        }
+
+        async function startTraining() {
+            if (isTraining) return;
+            
+            isTraining = true;
+            const trainBtn = document.getElementById('trainBtn');
+            const originalContent = trainBtn.innerHTML;
+            
+            trainBtn.innerHTML = '<span class="loading-spinner"></span>Training...';
+            trainBtn.disabled = true;
+            
+            // Show progress section
+            const progressSection = document.getElementById('progressSection');
+            progressSection.style.display = 'block';
+            
+            showStatus('Initializing voice training process...', 'info');
+            
+            try {
+                // Simulate training progress
+                updateProgress(10, 'Loading voice data...');
+                await sleep(1000);
+                
+                updateProgress(25, 'Extracting audio features...');
+                await sleep(2000);
+                
+                updateProgress(50, 'Training neural network...');
+                
+                // Start actual training
+                const response = await fetch('/train', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                updateProgress(80, 'Optimizing model parameters...');
+                await sleep(1500);
+                
+                const result = await response.json();
+                
+                updateProgress(100, 'Training complete!');
+                
+                if (result.status === 'success') {
+                    showStatus('Voice model trained successfully! The system is now ready for voice recognition.', 'success');
+                    await loadSystemStatus(); // Refresh status
+                    await loadVoiceInfo(); // Refresh voice info
+                } else {
+                    showStatus(`Training failed: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Training error:', error);
+                showStatus('Training failed due to network error', 'error');
+            } finally {
+                trainBtn.innerHTML = originalContent;
+                trainBtn.disabled = false;
+                isTraining = false;
+                
+                // Hide progress section after a delay
+                setTimeout(() => {
+                    progressSection.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        async function retrainVoice() {
+            if (isTraining) return;
+            
+            isTraining = true;
+            const retrainBtn = document.getElementById('retrainBtn');
+            const originalContent = retrainBtn.innerHTML;
+            
+            retrainBtn.innerHTML = '<span class="loading-spinner"></span>Retraining...';
+            retrainBtn.disabled = true;
+            
+            showStatus('Retraining voice model with updated data...', 'info');
+            
+            try {
+                const response = await fetch('/retrain_voice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showStatus('Voice model retrained successfully!', 'success');
+                    await loadSystemStatus();
+                    await loadVoiceInfo();
+                } else if (result.status === 'info') {
+                    showStatus(result.message, 'warning');
+                    await loadSystemStatus();
+                } else {
+                    showStatus(`Retraining failed: ${result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Retraining error:', error);
+                showStatus('Retraining failed due to network error', 'error');
+            } finally {
+                retrainBtn.innerHTML = originalContent;
+                retrainBtn.disabled = false;
+                isTraining = false;
+            }
+        }
+
+        function updateProgress(percentage, text) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.style.display = 'none';
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

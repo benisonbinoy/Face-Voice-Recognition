@@ -771,6 +771,16 @@ class FaceVoiceRecognitionSystem:
         self.face_people_count = len(face_people)
         self.voice_people_count = len(voice_people)
         
+        # Calculate total unique people (union of face and voice)
+        face_set = set(face_people)
+        voice_set = set(voice_people)
+        all_people = face_set.union(voice_set)
+        total_people_count = len(all_people)
+        
+        # Calculate complete profiles (people with both face and voice data)
+        complete_profiles = face_set.intersection(voice_set)
+        complete_profiles_count = len(complete_profiles)
+        
         status = {
             "face_recognition": {
                 "enabled": self.face_model is not None,
@@ -783,6 +793,12 @@ class FaceVoiceRecognitionSystem:
                 "people_count": self.voice_people_count,
                 "people_names": voice_people,
                 "status": "full_recognition" if self.voice_people_count > 1 else "limited_recognition" if self.voice_people_count == 1 else "needs_training"
+            },
+            "summary": {
+                "total_people_registered": total_people_count,
+                "complete_profiles": complete_profiles_count,
+                "all_people_names": sorted(list(all_people)),
+                "complete_profiles_names": sorted(list(complete_profiles))
             }
         }
         
@@ -807,7 +823,31 @@ recognition_system = FaceVoiceRecognitionSystem()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
+
+@app.route('/verify')
+def verify():
+    return render_template('face_recognition.html')
+
+@app.route('/voice-recognition')
+def voice_recognition():
+    return render_template('voice_recognition.html')
+
+@app.route('/results')
+def results():
+    return render_template('results.html')
+
+@app.route('/train-face')
+def train_face():
+    return render_template('train_face.html')
+
+@app.route('/train-voice')
+def train_voice():
+    return render_template('train_voice.html')
+
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
 
 @app.route('/train', methods=['POST'])
 def train_models():
@@ -821,36 +861,98 @@ def train_models():
         return jsonify({"status": "error", "message": str(e)})
 
 @app.route('/recognize_face', methods=['POST'])
-def recognize_face():
-    """Recognize face from uploaded image"""
+def recognize_face_endpoint():
+    """Recognize face from uploaded image for the new UI"""
     try:
         data = request.json
-        img_data = base64.b64decode(data['image'].split(',')[1])
+        print("Received face recognition request...")
+        
+        if 'image' not in data:
+            return jsonify({"success": False, "message": "No image data received"})
+        
+        img_data_str = data['image']
+        if img_data_str.startswith('data:image'):
+            img_data_str = img_data_str.split(',')[1]
+        
+        img_data = base64.b64decode(img_data_str)
         nparr = np.frombuffer(img_data, np.uint8)
         image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
+        if image is None:
+            return jsonify({"success": False, "message": "Failed to decode image"})
+        
         result = recognition_system.recognize_face(image)
-        return jsonify({"status": "success", "result": result})
+        print(f"Recognition result: {result}")
+        
+        if result and len(result) > 0 and "Unknown" not in result[0]:
+            # Parse the result to extract name and confidence
+            result_str = result[0]
+            if "(" in result_str and ")" in result_str:
+                name = result_str.split(" (")[0]
+                confidence_str = result_str.split("(")[1].split(")")[0]
+                confidence = float(confidence_str) * 100  # Convert to percentage
+            else:
+                name = result_str
+                confidence = 85  # Default confidence
+            
+            return jsonify({
+                "success": True,
+                "person": name,
+                "confidence": confidence,
+                "message": f"Face recognized as {name}"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "message": "Face not recognized or no face detected"
+            })
+            
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+        print(f"Error in face recognition: {str(e)}")
+        return jsonify({"success": False, "message": f"Error: {str(e)}"})
 
 @app.route('/recognize_voice', methods=['POST'])
-def recognize_voice():
-    """Recognize voice from uploaded audio"""
+def recognize_voice_endpoint():
+    """Recognize voice from uploaded audio for the new UI"""
     try:
         audio_file = request.files['audio']
-        audio_data, sr = librosa.load(audio_file, sr=16000)
+        audio_data, sr = librosa.load(audio_file, sr=22050)
         
         result = recognition_system.recognize_voice(audio_data)
+        print(f"Voice recognition result: {result}")
         
         # Handle both old string format and new dict format
         if isinstance(result, dict):
-            return jsonify({"status": "success", "result": result})
+            if result.get("status") == "success" or result.get("confidence", 0) > 0.2:
+                return jsonify({
+                    "success": True,
+                    "person": result.get("name", "Unknown"),
+                    "confidence": result.get("confidence", 0) * 100,  # Convert to percentage
+                    "message": result.get("message", f"Voice recognized as {result.get('name', 'Unknown')}")
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": result.get("message", "Voice not recognized")
+                })
         else:
             # Backward compatibility for old string format
-            return jsonify({"status": "success", "result": {"message": result}})
+            if "Error" not in result and "not recognized" not in result:
+                return jsonify({
+                    "success": True,
+                    "person": result,
+                    "confidence": 75,  # Default confidence
+                    "message": f"Voice recognized as {result}"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": result
+                })
+                
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+        print(f"Error in voice recognition: {str(e)}")
+        return jsonify({"success": False, "message": f"Error: {str(e)}"})
 
 @app.route('/recognize_face_realtime', methods=['POST'])
 def recognize_face_realtime():

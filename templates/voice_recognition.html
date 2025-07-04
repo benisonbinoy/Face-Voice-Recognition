@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recognition - Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            animation: slideIn 1s ease-out;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .page-title h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+        }
+
+        .voice-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            animation: slideInUp 1s ease-out;
+        }
+
+        .microphone-section {
+            margin-bottom: 40px;
+        }
+
+        .microphone-visual {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .microphone-visual.recording {
+            animation: pulse 1.5s ease-in-out infinite;
+            background: rgba(231, 76, 60, 0.2);
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.3);
+        }
+
+        .microphone-icon {
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .microphone-visual.recording .microphone-icon {
+            color: #e74c3c;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        .sound-waves {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .microphone-visual.recording .sound-waves {
+            opacity: 1;
+        }
+
+        .wave {
+            position: absolute;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+            border-radius: 50%;
+            animation: ripple 1.5s ease-out infinite;
+        }
+
+        .wave:nth-child(1) { animation-delay: 0s; }
+        .wave:nth-child(2) { animation-delay: 0.3s; }
+        .wave:nth-child(3) { animation-delay: 0.6s; }
+
+        .microphone-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .recording-status {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        .recording-timer {
+            color: #e74c3c;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-record:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-record.recording {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            animation: recordingPulse 1s ease-in-out infinite;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .status-error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .status-info {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        .volume-indicator {
+            margin: 20px 0;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .volume-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c);
+            width: 0%;
+            transition: width 0.1s ease;
+            border-radius: 4px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 100%;
+                height: 100%;
+                opacity: 1;
+            }
+            100% {
+                width: 300%;
+                height: 300%;
+                opacity: 0;
+                left: -100%;
+                top: -100%;
+            }
+        }
+
+        @keyframes recordingPulse {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 30px rgba(231, 76, 60, 0.6);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .voice-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .microphone-visual {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .microphone-icon {
+                font-size: 3rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.location.href='/verify'">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+
+        <div class="page-title">
+            <h1>Voice Recognition</h1>
+            <p>Speak clearly into your microphone for voice verification</p>
+        </div>
+
+        <div class="voice-container">
+            <div class="microphone-section">
+                <div class="microphone-visual" id="microphoneVisual">
+                    <div class="microphone-icon">
+                        <i class="fas fa-microphone" id="microphoneIcon"></i>
+                    </div>
+                    <div class="sound-waves">
+                        <div class="wave"></div>
+                        <div class="wave"></div>
+                        <div class="wave"></div>
+                    </div>
+                </div>
+                <div class="microphone-text" id="microphoneText">Click "Start Recording" to begin voice recognition</div>
+                <div class="recording-status" id="recordingStatus">Ready to record</div>
+                <div class="recording-timer" id="recordingTimer">00:00</div>
+                
+                <div class="volume-indicator" id="volumeIndicator">
+                    <div class="volume-bar" id="volumeBar"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-record" id="recordBtn" onclick="toggleRecording()">
+                    <i class="fas fa-microphone"></i> Start Recording
+                </button>
+                <button class="btn btn-secondary" id="stopBtn" onclick="stopAndAnalyze()" disabled>
+                    <i class="fas fa-stop"></i> Stop & Analyze
+                </button>
+            </div>
+
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime = null;
+        let timerInterval = null;
+        let audioContext = null;
+        let analyser = null;
+        let microphone = null;
+
+        async function toggleRecording() {
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                showStatus('Accessing microphone...', 'info');
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 44100
+                    } 
+                });
+                
+                // Setup audio visualization
+                setupAudioVisualization(stream);
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    processAudioForRecognition(audioBlob);
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                recordingStartTime = Date.now();
+                
+                updateUI();
+                startTimer();
+                showVolumeIndicator();
+                
+                showStatus('Recording started! Speak clearly into your microphone.', 'info');
+                
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                showStatus('Error accessing microphone. Please check permissions.', 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                
+                // Stop all audio tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                
+                updateUI();
+                stopTimer();
+                hideVolumeIndicator();
+                
+                showStatus('Processing voice sample...', 'info');
+            }
+        }
+
+        function setupAudioVisualization(stream) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            microphone = audioContext.createMediaStreamSource(stream);
+            
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            microphone.connect(analyser);
+            
+            function updateVolumeBar() {
+                if (!isRecording) return;
+                
+                analyser.getByteFrequencyData(dataArray);
+                
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                
+                const average = sum / bufferLength;
+                const volume = (average / 255) * 100;
+                
+                const volumeBar = document.getElementById('volumeBar');
+                if (volumeBar) {
+                    volumeBar.style.width = volume + '%';
+                }
+                
+                requestAnimationFrame(updateVolumeBar);
+            }
+            
+            updateVolumeBar();
+        }
+
+        function updateUI() {
+            const recordBtn = document.getElementById('recordBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const microphoneVisual = document.getElementById('microphoneVisual');
+            const microphoneText = document.getElementById('microphoneText');
+            const recordingStatus = document.getElementById('recordingStatus');
+            const microphoneIcon = document.getElementById('microphoneIcon');
+            
+            if (isRecording) {
+                recordBtn.innerHTML = '<i class="fas fa-pause"></i> Recording...';
+                recordBtn.classList.add('recording');
+                recordBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                microphoneVisual.classList.add('recording');
+                microphoneText.textContent = 'Recording in progress...';
+                recordingStatus.textContent = 'Speak clearly into your microphone';
+                microphoneIcon.className = 'fas fa-microphone-alt';
+                
+            } else {
+                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+                recordBtn.classList.remove('recording');
+                recordBtn.disabled = false;
+                stopBtn.disabled = true;
+                
+                microphoneVisual.classList.remove('recording');
+                microphoneText.textContent = 'Click "Start Recording" to begin voice recognition';
+                recordingStatus.textContent = 'Ready to record';
+                microphoneIcon.className = 'fas fa-microphone';
+            }
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('recordingTimer');
+            timerElement.style.display = 'block';
+            
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - recordingStartTime;
+                const minutes = Math.floor(elapsed / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                
+                timerElement.textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            document.getElementById('recordingTimer').style.display = 'none';
+        }
+
+        function showVolumeIndicator() {
+            document.getElementById('volumeIndicator').style.display = 'block';
+        }
+
+        function hideVolumeIndicator() {
+            document.getElementById('volumeIndicator').style.display = 'none';
+        }
+
+        async function stopAndAnalyze() {
+            stopRecording();
+        }
+
+        async function processAudioForRecognition(audioBlob) {
+            const stopBtn = document.getElementById('stopBtn');
+            const originalContent = stopBtn.innerHTML;
+            
+            stopBtn.innerHTML = '<span class="loading-spinner"></span>Analyzing...';
+            stopBtn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'voice_sample.wav');
+                
+                const response = await fetch('/recognize_voice', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('Voice recognition successful! Preparing results...', 'success');
+                    
+                    // Get face recognition data from session
+                    const faceData = JSON.parse(sessionStorage.getItem('recognizedPerson') || '{}');
+                    
+                    // Store complete results
+                    sessionStorage.setItem('recognitionResults', JSON.stringify({
+                        face: faceData,
+                        voice: {
+                            name: result.person,
+                            confidence: result.confidence
+                        },
+                        timestamp: new Date().toISOString(),
+                        match: faceData.name === result.person
+                    }));
+                    
+                    setTimeout(() => {
+                        window.location.href = '/results';
+                    }, 2000);
+                    
+                } else {
+                    showStatus(result.message || 'Voice not recognized. Please try again.', 'error');
+                    stopBtn.innerHTML = originalContent;
+                    stopBtn.disabled = true;
+                }
+                
+            } catch (error) {
+                console.error('Error during voice recognition:', error);
+                showStatus('Error during voice recognition. Please try again.', 'error');
+                stopBtn.innerHTML = originalContent;
+                stopBtn.disabled = true;
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message status-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.style.display = 'none';
+        }
+
+        // Auto-start recording when page loads (after face recognition)
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!isRecording) {
+                    startRecording();
+                }
+            }, 1000);
+        });
+
+        // Clean up when leaving the page
+        window.addEventListener('beforeunload', () => {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+        });
+    </script>
+</body>
+</html>
