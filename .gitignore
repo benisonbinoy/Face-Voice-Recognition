@@ -54,6 +54,9 @@ feature_test_output.txt
 improvement_output.txt
 voice_test_output.txt
 
+# Specific files to exclude
+fix_athul_recognition.py
+
 # Image and audio files (if they contain personal data)
 # Note: Allow some images for documentation but exclude processed ones
 *_processed.jpg
