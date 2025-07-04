@@ -42,13 +42,25 @@ venv.bak/
 *.sqlite
 *.db
 
+# Face and Voice Data Directories - Don't commit training data
+face_data/
+voice_data/
+heic/
+
+# Output and analysis files
+*.txt
+analysis_output.txt
+feature_test_output.txt
+improvement_output.txt
+voice_test_output.txt
+
 # Image and audio files (if they contain personal data)
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
+# Note: Allow some images for documentation but exclude processed ones
+*_processed.jpg
+*_processed.jpeg
+*_processed.png
+*_output.jpg
+*_result.jpg
 *.wav
 *.mp3
 *.mp4
