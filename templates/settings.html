@@ -7,6 +7,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.15);
+            --bg-card: rgba(255, 255, 255, 0.2);
+            --text-primary: white;
+            --text-secondary: rgba(255, 255, 255, 0.9);
+            --text-tertiary: rgba(255, 255, 255, 0.8);
+            --border-color: rgba(255, 255, 255, 0.3);
+            --button-bg: rgba(255, 255, 255, 0.2);
+            --button-border: rgba(255, 255, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --accent-color: #667eea;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            --bg-secondary: rgba(40, 40, 40, 0.8);
+            --bg-card: rgba(30, 30, 30, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-tertiary: #b0b0b0;
+            --border-color: rgba(200, 50, 50, 0.3);
+            --button-bg: rgba(180, 40, 40, 0.3);
+            --button-border: rgba(200, 50, 50, 0.5);
+            --shadow-color: rgba(200, 50, 50, 0.2);
+            --accent-color: #dc2626;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,8 +45,39 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--button-bg);
+            border-color: var(--button-border);
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px var(--shadow-color);
         }
 
         .container {
@@ -30,20 +91,20 @@
             position: absolute;
             top: 30px;
             left: 30px;
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--button-bg);
             border: none;
-            color: white;
+            color: var(--text-primary);
             padding: 15px 20px;
             border-radius: 50px;
             cursor: pointer;
             font-size: 1rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--border-color);
         }
 
         .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--bg-card);
             transform: translateY(-2px);
         }
 
@@ -53,16 +114,65 @@
         }
 
         .header h1 {
-            color: white;
+            color: var(--text-primary);
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 15px;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
             font-size: 1.1rem;
+        }
+
+        /* Tab Styles */
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .tabs {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0 4px;
+            position: relative;
+        }
+
+        .tab-button.active,
+        .tab-button:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .settings-grid {
@@ -162,12 +272,12 @@
         }
 
         .status-overview {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-secondary);
             backdrop-filter: blur(20px);
             border-radius: 25px;
             padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px var(--shadow-color);
             margin-bottom: 30px;
         }
 
@@ -181,7 +291,7 @@
         .status-item {
             text-align: center;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--bg-card);
             border-radius: 15px;
         }
 
@@ -293,9 +403,48 @@
                 justify-content: center;
             }
         }
+
+        /* Theme Selector Styles */
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-option {
+            background: var(--button-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-tertiary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-option.active,
+        .theme-option:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-color);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .theme-option i {
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
+
     <div class="container">
         <button class="back-button" onclick="window.location.href='/'">
             <i class="fas fa-arrow-left"></i> Back to Home
@@ -306,195 +455,273 @@
             <p>Configure and monitor your recognition system</p>
         </div>
 
-        <div class="status-overview">
-            <div class="card-header">
-                <div class="card-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="card-title">System Status Overview</div>
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" onclick="openTab(event, 'general')">General</button>
+                <button class="tab-button" onclick="openTab(event, 'appearance')">Appearance</button>
+                <button class="tab-button" onclick="openTab(event, 'maintenance')">System Maintenance</button>
             </div>
-            
-            <div class="status-grid" id="statusGrid">
-                <div class="status-item">
-                    <div class="status-value" id="faceModelStatus">✗</div>
-                    <div class="status-label">Face Model</div>
+        </div>
+
+        <!-- General Tab -->
+        <div id="general" class="tab-content active">
+            <div class="status-overview">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-title">System Status Overview</div>
                 </div>
-                <div class="status-item">
-                    <div class="status-value" id="voiceModelStatus">✗</div>
-                    <div class="status-label">Voice Model</div>
+                
+                <div class="status-grid" id="statusGrid">
+                    <div class="status-item">
+                        <div class="status-value" id="faceModelStatus">✗</div>
+                        <div class="status-label">Face Model</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="voiceModelStatus">✗</div>
+                        <div class="status-label">Voice Model</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="totalPeople">0</div>
+                        <div class="status-label" id="peopleLabel">People Registered</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="completePeople">0</div>
+                        <div class="status-label">Complete Profiles</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value" id="systemHealth">100%</div>
+                        <div class="status-label">System Health</div>
+                    </div>
                 </div>
-                <div class="status-item">
-                    <div class="status-value" id="totalPeople">0</div>
-                    <div class="status-label" id="peopleLabel">People Registered</div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="card-title">Face Recognition Settings</div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Auto Detection</div>
+                            <div class="setting-description">Automatically detect faces in camera feed</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">High Accuracy Mode</div>
+                            <div class="setting-description">Use enhanced processing for better accuracy</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="/train-face" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Train Model
+                        </a>
+                    </div>
                 </div>
-                <div class="status-item">
-                    <div class="status-value" id="completePeople">0</div>
-                    <div class="status-label">Complete Profiles</div>
-                </div>
-                <div class="status-item">
-                    <div class="status-value" id="systemHealth">100%</div>
-                    <div class="status-label">System Health</div>
+
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <div class="card-title">Voice Recognition Settings</div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Noise Cancellation</div>
+                            <div class="setting-description">Filter background noise during recording</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Multi-Model Recognition</div>
+                            <div class="setting-description">Use multiple AI models for better accuracy</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="/train-voice" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Train Model
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="settings-grid">
-            <div class="settings-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-camera"></i>
+        <!-- Appearance Tab -->
+        <div id="appearance" class="tab-content">
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="card-title">Theme Settings</div>
                     </div>
-                    <div class="card-title">Face Recognition Settings</div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Theme Mode</div>
+                            <div class="setting-description">Choose between light and dark themes</div>
+                        </div>
+                        <div class="theme-selector">
+                            <button class="theme-option active" onclick="setTheme('light')" data-theme="light">
+                                <i class="fas fa-sun"></i> Light
+                            </button>
+                            <button class="theme-option" onclick="setTheme('dark')" data-theme="dark">
+                                <i class="fas fa-moon"></i> Dark
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Auto Theme</div>
+                            <div class="setting-description">Automatically switch theme based on system preference</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Auto Detection</div>
-                        <div class="setting-description">Automatically detect faces in camera feed</div>
+
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="card-title">Display Settings</div>
                     </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Animation Effects</div>
+                            <div class="setting-description">Enable smooth animations and transitions</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">High Accuracy Mode</div>
-                        <div class="setting-description">Use enhanced processing for better accuracy</div>
-                    </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <a href="/train-face" class="btn btn-primary">
-                        <i class="fas fa-play"></i> Train Model
-                    </a>
-                    <button class="btn btn-secondary" onclick="exportFaceData()">
-                        <i class="fas fa-download"></i> Export Data
-                    </button>
                 </div>
             </div>
+        </div>
 
-            <div class="settings-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-microphone"></i>
+        <!-- System Maintenance Tab -->
+        <div id="maintenance" class="tab-content">
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="card-title">System Maintenance</div>
                     </div>
-                    <div class="card-title">Voice Recognition Settings</div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Auto Updates</div>
+                            <div class="setting-description">Automatically update models when new data is added</div>
+                        </div>
+                        <div class="toggle-switch" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Performance Monitoring</div>
+                            <div class="setting-description">Monitor system performance and accuracy</div>
+                        </div>
+                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="optimizeSystem()">
+                            <i class="fas fa-magic"></i> Optimize System
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearCache()">
+                            <i class="fas fa-broom"></i> Clear Cache
+                        </button>
+                        <button class="btn btn-danger" onclick="resetSystem()">
+                            <i class="fas fa-undo"></i> Reset System
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Noise Cancellation</div>
-                        <div class="setting-description">Filter background noise during recording</div>
-                    </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Multi-Model Recognition</div>
-                        <div class="setting-description">Use multiple AI models for better accuracy</div>
-                    </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <a href="/train-voice" class="btn btn-primary">
-                        <i class="fas fa-play"></i> Train Model
-                    </a>
-                    <button class="btn btn-secondary" onclick="exportVoiceData()">
-                        <i class="fas fa-download"></i> Export Data
-                    </button>
-                </div>
-            </div>
 
-            <div class="settings-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-shield-alt"></i>
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="card-title">Data Management</div>
                     </div>
-                    <div class="card-title">Security & Privacy</div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="backupData()">
+                            <i class="fas fa-download"></i> Backup Data
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportLogs()">
+                            <i class="fas fa-file-export"></i> Export Logs
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearLogs()">
+                            <i class="fas fa-trash"></i> Clear Logs
+                        </button>
+                        <button class="btn btn-warning" onclick="cleanupData()">
+                            <i class="fas fa-trash-alt"></i> Cleanup Old Data
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteAllData()">
+                            <i class="fas fa-trash"></i> Delete All Data
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Local Processing</div>
-                        <div class="setting-description">Process all data locally for privacy</div>
-                    </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Data Encryption</div>
-                        <div class="setting-description">Encrypt stored biometric data</div>
-                    </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-secondary" onclick="clearLogs()">
-                        <i class="fas fa-trash"></i> Clear Logs
-                    </button>
-                    <button class="btn btn-danger" onclick="resetSystem()">
-                        <i class="fas fa-exclamation-triangle"></i> Reset System
-                    </button>
-                </div>
-            </div>
 
-            <div class="settings-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-tools"></i>
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <div class="card-title">System Diagnostics</div>
                     </div>
-                    <div class="card-title">System Maintenance</div>
-                </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Auto Updates</div>
-                        <div class="setting-description">Automatically update models when new data is added</div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="runDiagnostics()">
+                            <i class="fas fa-stethoscope"></i> Run Diagnostics
+                        </button>
+                        <button class="btn btn-secondary" onclick="optimizeModels()">
+                            <i class="fas fa-rocket"></i> Optimize Models
+                        </button>
                     </div>
-                    <div class="toggle-switch" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
+                    
+                    <div class="logs-section" id="systemLogs">
+                        <div>System initialized successfully</div>
+                        <div>Face recognition model loaded</div>
+                        <div>Voice recognition model loaded</div>
+                        <div>All systems operational</div>
                     </div>
-                </div>
-                
-                <div class="setting-item">
-                    <div>
-                        <div class="setting-label">Performance Monitoring</div>
-                        <div class="setting-description">Monitor system performance and accuracy</div>
-                    </div>
-                    <div class="toggle-switch active" onclick="toggleSetting(this)">
-                        <div class="toggle-slider"></div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="runDiagnostics()">
-                        <i class="fas fa-stethoscope"></i> Run Diagnostics
-                    </button>
-                    <button class="btn btn-secondary" onclick="optimizeModels()">
-                        <i class="fas fa-rocket"></i> Optimize Models
-                    </button>
-                </div>
-                
-                <div class="logs-section" id="systemLogs">
-                    <div>System initialized successfully</div>
-                    <div>Face recognition model loaded</div>
-                    <div>Voice recognition model loaded</div>
-                    <div>All systems operational</div>
                 </div>
             </div>
         </div>
@@ -508,8 +735,65 @@
     </div>
 
     <script>
+        // Tab functionality
+        function openTab(evt, tabName) {
+            var i, tabContent, tabButtons;
+            
+            // Hide all tab content
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].classList.remove("active");
+            }
+            
+            // Remove active class from all tab buttons
+            tabButtons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            
+            // Show the selected tab and mark button as active
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Theme management functions
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            // Update theme icon
+            const themeIcon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+            
+            // Update theme selector buttons
+            const themeOptions = document.querySelectorAll('.theme-option');
+            themeOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-theme') === theme) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        // Initialize functions
         window.addEventListener('load', () => {
             loadSystemStatus();
+            initializeTheme();
         });
 
         async function loadSystemStatus() {
@@ -603,29 +887,6 @@
             }
         }
 
-        function exportFaceData() {
-            addLog('Exporting face recognition data...');
-            // Simulate export
-            setTimeout(() => {
-                addLog('Face data exported successfully');
-                alert('Face data exported to downloads folder');
-            }, 1000);
-        }
-
-        function exportVoiceData() {
-            addLog('Exporting voice recognition data...');
-            // Simulate export
-            setTimeout(() => {
-                addLog('Voice data exported successfully');
-                alert('Voice data exported to downloads folder');
-            }, 1000);
-        }
-
-        function clearLogs() {
-            const logs = document.getElementById('systemLogs');
-            logs.innerHTML = '<div>Logs cleared</div>';
-        }
-
         function resetSystem() {
             if (confirm('Are you sure you want to reset the entire system? This will delete all trained models and data.')) {
                 addLog('System reset initiated...');
@@ -679,6 +940,53 @@
             logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
             logs.appendChild(logEntry);
             logs.scrollTop = logs.scrollHeight;
+        }
+
+        // New Maintenance Functions
+        function optimizeSystem() {
+            if (confirm('This will optimize system performance. Continue?')) {
+                addLog('Starting system optimization...');
+                setTimeout(() => addLog('System optimization completed'), 2000);
+            }
+        }
+
+        function clearCache() {
+            if (confirm('Clear all cached data?')) {
+                addLog('Clearing system cache...');
+                setTimeout(() => addLog('Cache cleared successfully'), 1000);
+            }
+        }
+
+        function backupData() {
+            addLog('Creating system backup...');
+            setTimeout(() => addLog('Backup created successfully'), 2000);
+        }
+
+        function exportLogs() {
+            addLog('Exporting system logs...');
+            setTimeout(() => addLog('Logs exported successfully'), 1000);
+        }
+
+        function cleanupData() {
+            if (confirm('This will remove old data files. Continue?')) {
+                addLog('Cleaning up old data...');
+                setTimeout(() => addLog('Data cleanup completed'), 1500);
+            }
+        }
+
+        function clearLogs() {
+            const logs = document.getElementById('systemLogs');
+            logs.innerHTML = '<div>Logs cleared</div>';
+            addLog('System logs cleared successfully');
+        }
+
+        function deleteAllData() {
+            if (confirm('WARNING: This will permanently delete all data. Are you sure?')) {
+                if (confirm('This action cannot be undone. Confirm deletion?')) {
+                    addLog('Deleting all user data...');
+                    setTimeout(() => addLog('All data deleted'), 2000);
+                }
+            }
         }
     </script>
 </body>

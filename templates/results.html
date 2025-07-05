@@ -7,6 +7,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.15);
+            --bg-card: rgba(255, 255, 255, 0.2);
+            --text-primary: white;
+            --text-secondary: rgba(255, 255, 255, 0.9);
+            --text-tertiary: rgba(255, 255, 255, 0.8);
+            --border-color: rgba(255, 255, 255, 0.3);
+            --button-bg: rgba(255, 255, 255, 0.2);
+            --button-border: rgba(255, 255, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            --bg-secondary: rgba(40, 40, 40, 0.8);
+            --bg-card: rgba(30, 30, 30, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-tertiary: #b0b0b0;
+            --border-color: rgba(200, 50, 50, 0.3);
+            --button-bg: rgba(180, 40, 40, 0.3);
+            --button-border: rgba(200, 50, 50, 0.5);
+            --shadow-color: rgba(200, 50, 50, 0.2);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,9 +43,40 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--button-bg);
+            border-color: var(--button-border);
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px var(--shadow-color);
         }
 
         .container {
@@ -31,12 +90,12 @@
         }
 
         .results-container {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-secondary);
             backdrop-filter: blur(20px);
             border-radius: 30px;
             padding: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px var(--shadow-color);
             text-align: center;
             max-width: 800px;
             width: 100%;
@@ -44,7 +103,7 @@
         }
 
         .page-title {
-            color: white;
+            color: var(--text-primary);
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 40px;
@@ -345,6 +404,13 @@
     </style>
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
+
     <div class="container">
         <div class="results-container">
             <h1 class="page-title">Recognition Results</h1>
@@ -509,6 +575,36 @@
             linkElement.setAttribute('download', exportFileDefaultName);
             linkElement.click();
         }
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateThemeUI(newTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (theme === 'dark') {
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+            } else {
+                if (themeIcon) themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initializeTheme);
     </script>
 </body>
 </html>
