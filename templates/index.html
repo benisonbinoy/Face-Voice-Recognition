@@ -7,6 +7,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.15);
+            --bg-card: rgba(255, 255, 255, 0.2);
+            --text-primary: white;
+            --text-secondary: rgba(255, 255, 255, 0.9);
+            --text-tertiary: rgba(255, 255, 255, 0.8);
+            --border-color: rgba(255, 255, 255, 0.3);
+            --button-bg: rgba(255, 255, 255, 0.2);
+            --button-border: rgba(255, 255, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --gradient-1: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            --gradient-2: linear-gradient(135deg, #4ecdc4, #44a08d);
+            --gradient-3: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            --gradient-4: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            --bg-secondary: rgba(40, 40, 40, 0.8);
+            --bg-card: rgba(30, 30, 30, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-tertiary: #b0b0b0;
+            --border-color: rgba(200, 50, 50, 0.3);
+            --button-bg: rgba(180, 40, 40, 0.3);
+            --button-border: rgba(200, 50, 50, 0.5);
+            --shadow-color: rgba(200, 50, 50, 0.2);
+            --gradient-1: linear-gradient(135deg, #dc2626, #b91c1c);
+            --gradient-2: linear-gradient(135deg, #7c2d12, #a16207);
+            --gradient-3: linear-gradient(135deg, #b45309, #d97706);
+            --gradient-4: linear-gradient(135deg, #7c3aed, #a855f7);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,9 +51,40 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--button-bg);
+            border-color: var(--button-border);
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px var(--shadow-color);
         }
 
         .container {
@@ -39,31 +106,31 @@
             width: 120px;
             height: 120px;
             margin: 0 auto 30px;
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--bg-secondary);
             border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--border-color);
             animation: float 3s ease-in-out infinite;
         }
 
         .logo i {
             font-size: 3rem;
-            color: white;
+            color: var(--text-primary);
         }
 
         .title {
-            color: white;
+            color: var(--text-primary);
             font-size: 3.5rem;
             font-weight: 700;
             margin-bottom: 15px;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 4px 20px var(--shadow-color);
         }
 
         .subtitle {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
             font-size: 1.2rem;
             font-weight: 400;
             max-width: 600px;
@@ -79,12 +146,12 @@
         }
 
         .action-card {
-            background: rgba(255, 255, 255, 0.15);
+            background: var(--bg-secondary);
             backdrop-filter: blur(15px);
             border-radius: 24px;
             padding: 40px 30px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--border-color);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             position: relative;
@@ -98,7 +165,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, var(--bg-card), transparent);
             transition: left 0.6s;
         }
 
@@ -108,15 +175,15 @@
 
         .action-card:hover {
             transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px var(--shadow-color);
+            background: var(--bg-card);
         }
 
         .card-icon {
             width: 80px;
             height: 80px;
             margin: 0 auto 25px;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            background: var(--gradient-1);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -125,15 +192,23 @@
         }
 
         .action-card:nth-child(2) .card-icon {
-            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            background: var(--gradient-2);
         }
 
         .action-card:nth-child(3) .card-icon {
-            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            background: var(--gradient-3);
         }
 
         .action-card:nth-child(4) .card-icon {
-            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            background: var(--gradient-4);
+        }
+
+        .theme-card .card-icon {
+            background: var(--gradient-4) !important;
+        }
+
+        .theme-card:hover {
+            background: var(--bg-card) !important;
         }
 
         .card-icon i {
@@ -142,23 +217,23 @@
         }
 
         .card-title {
-            color: white;
+            color: var(--text-primary);
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 15px;
         }
 
         .card-description {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-tertiary);
             font-size: 1rem;
             line-height: 1.5;
             margin-bottom: 25px;
         }
 
         .card-button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
+            background: var(--button-bg);
+            border: 2px solid var(--button-border);
+            color: var(--text-primary);
             padding: 12px 30px;
             border-radius: 50px;
             font-size: 1rem;
@@ -170,8 +245,8 @@
         }
 
         .card-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: var(--bg-card);
+            border-color: var(--border-color);
             transform: translateY(-2px);
         }
 
@@ -179,7 +254,7 @@
             position: absolute;
             bottom: 30px;
             text-align: center;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-tertiary);
             font-size: 0.9rem;
         }
 
@@ -229,12 +304,19 @@
     </style>
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
+
     <div class="container">
         <div class="logo-section">
             <div class="logo">
                 <i class="fas fa-user-shield"></i>
             </div>
-            <h1 class="title">Recognition System</h1>
+            <h1 class="title">Identity Recognition System</h1>
             <p class="subtitle">Advanced face and voice recognition with AI-powered security</p>
         </div>
 
@@ -266,6 +348,15 @@
                 <a href="/train-voice" class="card-button">Train Voice</a>
             </div>
 
+            <div class="action-card theme-card" onclick="toggleTheme()">
+                <div class="card-icon">
+                    <i class="fas fa-adjust" id="theme-card-icon"></i>
+                </div>
+                <h3 class="card-title">Theme Mode</h3>
+                <p class="card-description" id="theme-description">Switch between light and dark modes</p>
+                <button class="card-button" onclick="toggleTheme()">Toggle Theme</button>
+            </div>
+
             <div class="action-card" onclick="window.location.href='/settings'">
                 <div class="card-icon">
                     <i class="fas fa-cog"></i>
@@ -280,85 +371,46 @@
             <p>&copy; 2025 Face & Voice Recognition System. Powered by AI.</p>
         </div>
     </div>
+
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateThemeUI(newTheme);
+        }
+
+        function updateThemeUI(theme) {
+            const themeIcon = document.getElementById('theme-icon');
+            const themeCardIcon = document.getElementById('theme-card-icon');
+            const themeDescription = document.getElementById('theme-description');
+            
+            if (theme === 'dark') {
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+                if (themeCardIcon) themeCardIcon.className = 'fas fa-sun';
+                if (themeDescription) themeDescription.textContent = 'Currently in dark mode - click to switch to light';
+            } else {
+                if (themeIcon) themeIcon.className = 'fas fa-moon';
+                if (themeCardIcon) themeCardIcon.className = 'fas fa-moon';
+                if (themeDescription) themeDescription.textContent = 'Currently in light mode - click to switch to dark';
+            }
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+    </script>
 </body>
 </html>
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .icon {
-            font-size: 2rem;
-        }
-
-        .video-container, .audio-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        #video {
-            width: 100%;
-            height: 300px;
-            border-radius: 10px;
-            background: #f0f0f0;
-            object-fit: cover;
-        }
-
-        .audio-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn.recording {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
@@ -1056,6 +1108,7 @@
             initAudioVisualizer();
             setupFileUploads();
             loadSystemStatus();
+            initializeTheme();
         });
     </script>
 </body>
